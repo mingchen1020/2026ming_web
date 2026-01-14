@@ -36,6 +36,20 @@ body {
   color: #a0eaf0;
 }
 
+.hero-typed {
+  position: relative;
+  z-index: 10;
+  margin-top: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+
+  /* 關鍵：不吃視差動畫 */
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+
 .hero-content {
   transition: transform 0.1s linear, opacity 0.1s linear;
   will-change: transform, opacity;
