@@ -25,6 +25,29 @@
 </head>
 
 <script>
+window.addEventListener('load', function () {
+  const el = document.getElementById('typed-text');
+  if (!el) {
+    console.error('找不到 #typed-text');
+    return;
+  }
+
+  new Typed(el, {
+    strings: [
+      "-分享日常、記錄生活-",
+      "-熱愛遊戲、精彩瞬間-",
+      "-歡迎來到我的個人網站-",
+      "-Ming與Kira的故事-"
+    ],
+    typeSpeed: 60,
+    backSpeed: 40,
+    backDelay: 2000,
+    loop: true,
+    showCursor: true,
+    cursorChar: '|'
+  });
+});
+
 window.addEventListener('scroll', function() {
   const windowHeight = window.innerHeight;
   const kiraImg = document.getElementById('kira-parallax-img');
