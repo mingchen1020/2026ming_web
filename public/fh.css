@@ -153,7 +153,7 @@ body {
 
 #kira-parallax-img {
     width: 100%;       /* 放大圖片，佔滿左側欄位 */
-    max-width: 500px;  /* 您可以根據需求調大這個數值 */
+    max-width: 500px;  
     height: auto;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -164,13 +164,13 @@ body {
     will-change: transform, opacity;
 }
 
-/* 徹底移除陰影，並確保圖片可以超出容器邊界而不被切掉 */
+/* 移除陰影 */
 .kira-parallax-box {
     width: 200%;
     margin-top: -5px; 
-    overflow: visible !important; /* 確保圖片變大後不會被卡掉 */
+    overflow: visible !important; /* 圖片變大後不會被卡掉 */
     position: relative;
-    z-index: 10; /* 讓圖片顯示在最上層，增加視覺上的大體積感 */
+    z-index: 10; /* 讓圖片顯示在最上層*/
   }
 
 #kira-parallax-img {
