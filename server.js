@@ -1,5 +1,5 @@
 var express = require("express");
-var cors = require("cors"); // 加入 cors
+var cors = require("cors"); 
 var path = require("path");
 var fileUpload = require("express-fileupload");
 var bodyParser = require("body-parser");
@@ -8,7 +8,7 @@ var DB = require("nedb-promises");
 var server = express();
 
 // 1. 基礎設定
-server.use(cors()); // 允許跨來源請求，這樣 5500 埠才能傳資料給 3000 埠
+server.use(cors()); 
 server.use(express.static(__dirname + "/public"));
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
@@ -29,7 +29,7 @@ server.get("/", (req, res) => {
 
 // 聯絡表單處理
 server.post("/contact", (req, res) => {
-    // 先將表單文字資料存入 NeDB
+    // 將表單文字資料存入 NeDB
     ContactDB.insert(req.body)
         .then(result => {
             // 檢查是否有檔案上傳
@@ -54,6 +54,18 @@ server.post("/contact", (req, res) => {
             res.status(500).json({ success: false, message: "❌ 資料庫寫入失敗" });
         });
 });
+
+// 查看所有聯絡訊息的 API
+server.get("/admin/contacts", (req, res) => {
+    ContactDB.find({}).then(results => {
+        // 直接回傳 JSON 格式，查看內容
+        res.json(results);
+    }).catch(err => {
+        res.status(500).send("讀取失敗");
+    });
+});
+//https://你的網站網址.onrender.com/admin/contacts
+
 
 // 啟動伺服器
 server.listen(3000, () => {
