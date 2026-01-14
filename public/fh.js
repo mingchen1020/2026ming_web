@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (document.getElementById('typed-text')) {
         new Typed('#typed-text', {
-            // 這設定文字內容
+            // 設定文字內容
             strings: [
                 "-分享日常、記錄生活-", 
                 "-熱愛遊戲、精彩瞬間-", 
