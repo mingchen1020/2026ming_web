@@ -126,25 +126,51 @@
   });
   
   // 3. 表單處理
-  async function sendForm() {
-      const form = document.getElementById('contactForm');
-      const responseMsg = document.getElementById('responseMsg');
-      if (!form || !responseMsg) return;
-      const formData = new FormData(form);
-      try {
-          const response = await fetch('/contact', { method: 'POST', body: formData });
-          const result = await response.json();
-          responseMsg.style.display = 'block';
-          responseMsg.className = result.success ? 'alert alert-success' : 'alert alert-danger';
-          responseMsg.innerText = result.success ? '✅ 送出成功！' : '❌ 失敗：' + result.message;
-          if (result.success) form.reset();
-      } catch (error) {
-          responseMsg.style.display = 'block';
-          responseMsg.className = 'alert alert-danger';
-          responseMsg.innerText = '❌ 無法連線伺服器';
-      }
-  }
+async function sendForm(event) {
+    // 1. 阻止表單預設的跳轉行為（這是解決「亂跳」的關鍵）
+    if (event) event.preventDefault();
+
+    const form = document.getElementById('contactForm');
+    const responseMsg = document.getElementById('responseMsg');
+    if (!form || !responseMsg) return;
+    
+    const formData = new FormData(form);
+    
+    // 顯示「處理中...」增加使用者體驗
+    responseMsg.style.display = 'block';
+    responseMsg.className = 'alert alert-info';
+    responseMsg.innerText = '正在送出資料...';
+
+    try {
+        // 建議使用相對路徑，確保與後端同源
+        const response = await fetch('/contact', { 
+            method: 'POST', 
+            body: formData 
+        });
+
+        // 先確認回應狀態碼
+        if (!response.ok) {
+            throw new Error(`伺服器回應錯誤: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.success) {
+            responseMsg.className = 'alert alert-success';
+            responseMsg.innerText = '✅ 送出成功！資料已存入資料庫。';
+            form.reset(); 
+        } else {
+            responseMsg.className = 'alert alert-danger';
+            responseMsg.innerText = '❌ 失敗：' + (result.message || '未知錯誤');
+        }
+    } catch (error) {
+        console.error("錯誤細節:", error);
+        responseMsg.className = 'alert alert-danger';
+        responseMsg.innerText = '❌ 狀態：已送出但解析失敗，請重新整理網頁。';
+    }
+}
   </script>
+
 <body>
 
   <!-- 導覽列 -->
@@ -372,12 +398,11 @@ style="width: 200%;
 
         <div class="col-md-4 text-center mb-4">
           <iframe width="400" height="225" 
-            src="https://www.youtube.com/embed/Uon9jRWKMWk?si=Lq8mD1s2MasMfYaX&amp;start=2" 
+            src="https://www.youtube.com/embed/Uon9jRWKMWk?si=yjSgRn3MMcD3YTei&amp;start=4"            
             title="YouTube video player" 
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
             referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-          </iframe>          
           <h5>旅遊紀錄</h5>
           <p>Travel vlogs</p>
         </div>
@@ -477,7 +502,7 @@ style="width: 200%;
           </div>
 
           <div class="text-center">
-            <button type="button" onclick="sendForm()" class="btn btn-primary">送出</button>
+            <button type="button" onclick="sendForm(event)" class="btn btn-primary">送出</button>
             <div id="responseMsg" style="margin-top: 10px; display: none;" class="alert"></div>          
           </div>
         </form>
