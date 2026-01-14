@@ -1,0 +1,153 @@
+<!-- 標題：頁面上顯示的文字標題 -->
+<h4>我的 Instagram 貼文</h4>
+
+<!-- Instagram 官方嵌入容器（最外層） -->
+<blockquote class="instagram-media" 
+
+  <!-- 是否顯示貼文說明文字（caption） -->
+  data-instgrm-captioned
+
+  <!-- Instagram 貼文的永久連結（embed 會抓這個） -->
+  data-instgrm-permalink="https://www.instagram.com/p/DP0h-QwE9Q2/?utm_source=ig_embed&amp;utm_campaign=loading" 
+
+  <!-- Instagram Embed API 的版本 -->
+  data-instgrm-version="14" 
+
+  <!-- 外框樣式：白底、圓角、陰影、最大寬度等 -->
+  style="
+    background:#FFF;
+    border:0;
+    border-radius:3px;
+    box-shadow:0 0 1px 0 rgba(0,0,0,0.5),
+               0 1px 10px 0 rgba(0,0,0,0.15);
+    margin: 1px;
+    max-width:540px;
+    min-width:326px;
+    padding:0;
+    width:99.375%;
+    width:-webkit-calc(100% - 2px);
+    width:calc(100% - 2px);
+  ">
+
+  <!-- 內層主要內容容器 -->
+  <div style="padding:16px;">
+
+    <!-- 整個貼文其實是一個可點擊的連結 -->
+    <a href="https://www.instagram.com/p/DP0h-QwE9Q2/?utm_source=ig_embed&amp;utm_campaign=loading"
+       target="_blank"
+       style="
+         background:#FFFFFF;
+         line-height:0;
+         padding:0;
+         text-align:center;
+         text-decoration:none;
+         width:100%;
+       ">
+
+      <!-- 頂部：頭像 + 使用者名稱（骨架畫面） -->
+      <div style="display:flex; flex-direction:row; align-items:center;">
+
+        <!-- 使用者頭像（灰色圓形 placeholder） -->
+        <div style="
+          background-color:#F4F4F4;
+          border-radius:50%;
+          height:40px;
+          width:40px;
+          margin-right:14px;
+        "></div>
+
+        <!-- 使用者名稱與副資訊（灰色長條 placeholder） -->
+        <div style="display:flex; flex-direction:column; flex-grow:1; justify-content:center;">
+          <div style="
+            background-color:#F4F4F4;
+            border-radius:4px;
+            height:14px;
+            width:100px;
+            margin-bottom:6px;
+          "></div>
+          <div style="
+            background-color:#F4F4F4;
+            border-radius:4px;
+            height:14px;
+            width:60px;
+          "></div>
+        </div>
+      </div>
+
+      <!-- 中間空白：實際圖片 / 影片載入前的預留高度 -->
+      <div style="padding:19% 0;"></div>
+
+      <!-- Instagram Logo（SVG 向量圖） -->
+      <div style="display:block; height:50px; width:50px; margin:0 auto 12px;">
+        <!-- SVG 是 Instagram 的圖示，不是圖片檔 -->
+        <svg width="50px" height="50px" viewBox="0 0 60 60">
+          <!-- path 定義圖形輪廓 -->
+          <path d="..."></path>
+        </svg>
+      </div>
+
+      <!-- 「在 Instagram 查看這則貼文」提示文字 -->
+      <div style="padding-top:8px;">
+        <div style="
+          color:#3897f0;
+          font-family:Arial,sans-serif;
+          font-size:14px;
+          font-weight:550;
+        ">
+          在 Instagram 查看這則貼文
+        </div>
+      </div>
+
+      <!-- 留白區（模擬互動區塊高度） -->
+      <div style="padding:12.5% 0;"></div>
+
+      <!-- 互動列（愛心、留言、分享的骨架圖示） -->
+      <div style="display:flex; flex-direction:row; align-items:center; margin-bottom:14px;">
+
+        <!-- 愛心圖示（用 div 拼出來的） -->
+        <div>
+          <div style="background:#F4F4F4; border-radius:50%; width:12.5px; height:12.5px;"></div>
+          <div style="background:#F4F4F4; width:12.5px; height:12.5px; transform:rotate(-45deg);"></div>
+          <div style="background:#F4F4F4; border-radius:50%; width:12.5px; height:12.5px;"></div>
+        </div>
+
+        <!-- 留言圖示 -->
+        <div style="margin-left:8px;">
+          <div style="background:#F4F4F4; border-radius:50%; width:20px; height:20px;"></div>
+          <div style="border-left:6px solid #F4F4F4;"></div>
+        </div>
+
+        <!-- 分享 / 書籤圖示（靠右） -->
+        <div style="margin-left:auto;">
+          <div style="background:#F4F4F4; width:16px; height:12px;"></div>
+        </div>
+      </div>
+
+      <!-- 貼文文字（caption）骨架 -->
+      <div style="display:flex; flex-direction:column; margin-bottom:24px;">
+        <div style="background:#F4F4F4; height:14px; width:224px; margin-bottom:6px;"></div>
+        <div style="background:#F4F4F4; height:14px; width:144px;"></div>
+      </div>
+
+    </a>
+
+    <!-- 最底部：作者名稱與帳號 -->
+    <p style="
+      color:#c9c8cd;
+      font-family:Arial,sans-serif;
+      font-size:14px;
+      text-align:center;
+      overflow:hidden;
+      white-space:nowrap;
+    ">
+      <a href="https://www.instagram.com/p/DP0h-QwE9Q2/"
+         target="_blank"
+         style="color:#c9c8cd; text-decoration:none;">
+        白ming（@mi_haoyun）分享的貼文
+      </a>
+    </p>
+  </div>
+</blockquote>
+
+<!-- Instagram 官方 JavaScript：負責把骨架畫面變成真正貼文 -->
+<script async src="//www.instagram.com/embed.js"></script>

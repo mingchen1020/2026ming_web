@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+
+</head><link rel="stylesheet" href="bootstrap.min.css">
+<script src="public/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+<script src="public/pfh.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>白ming的個人網站</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="public/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+  <!-- 自訂 CSS -->
+  <link rel="stylesheet" href="fh.css">
+</head>
+
+<script>
+window.addEventListener('scroll', function() {
+  const windowHeight = window.innerHeight;
+  const kiraImg = document.getElementById('kira-parallax-img');
+  const imgUp = document.querySelector('.scroll-sync-up');
+  const imgRight = document.querySelector('.scroll-sync-right');
+
+  function updateParallax(el, type) {
+     if (!el) return;
+     const rect = el.getBoundingClientRect();
+
+    // 觸發區間：進入畫面 95% 開始，到 45% 完全結束
+    const start = windowHeight * 0.95;
+    const end = windowHeight * 0.45;
+
+    let progress = (start - rect.top) / (start - end);
+    progress = Math.min(Math.max(progress, 0), 1);
+
+    el.style.opacity = progress;
+ 
+    if (type === 'up') {
+      el.style.transform = `translateY(${(1 - progress) * 80}px)`;
+    } else if (type === 'right') {
+      el.style.transform = `translateX(${(1 - progress) * 80}px)`;
+    } else if (type === 'left-to-right') {
+      // 平移：從 -100px 到 0px
+       const moveX = (1 - progress) * -100;
+      // 縮放：從 0.9 放大到 1.15 (讓它完全顯現時比容器大，更有張力)
+      const scale = 0.9 + (progress * 0.25); 
+
+      el.style.transform = `translateX(${moveX}px) scale(${scale})`;
+    }
+  }
+
+  updateParallax(imgUp, 'up');
+  updateParallax(imgRight, 'right');
+  updateParallax(kiraImg, 'left-to-right');
+});
+
+window.addEventListener('scroll', function() {
+    const container = document.getElementById('parallax-stack-container');
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    
+    // 計算進度：滑到螢幕中間時為 1.0
+    let progress = (windowHeight - rect.top) / (windowHeight / 2 + rect.height / 2);
+    progress = Math.min(Math.max(progress, 0), 1);
+
+    // 1. 底圖縮放
+    const bgScale = 1.5 - (progress * 0.5);
+    document.getElementById('layer-bg').style.transform = `scale(${bgScale})`;
+
+    // 2. 文字漸顯放大 (從 scale 0.5 到 1.0)
+    const textEl = document.getElementById('parallax-text');
+    const textScale = 0.5 + (progress * 0.5);
+    textEl.style.opacity = progress;
+    // 注意：這裡要保留 translate(-50%, -50%) 才能維持正中間對齊
+    textEl.style.transform = `translate(-50%, -50%) scale(${textScale})`;
+
+    // 3. 左側貓貓
+    const leftImg = document.getElementById('layer-left');
+    const leftX = (1 - progress) * -250;
+    const leftScale = 0.6 + (progress * 0.4); 
+    leftImg.style.opacity = progress;
+    leftImg.style.transform = `translateX(${leftX}px) scale(${leftScale})`;
+
+    // 4. 右側貓貓
+    const rightImg = document.getElementById('layer-right');
+    const rightX = (1 - progress) * 250;
+    const rightScale = 0.6 + (progress * 0.4);
+    rightImg.style.opacity = progress;
+    rightImg.style.transform = `translateX(${rightX}px) scale(${rightScale})`;
+});
+
+
+
+  window.addEventListener('load', function() {
+    // 找出頁面上所有的輪播
+    const swiperContainers = document.querySelectorAll('.myPhotoSwiper');
+
+    swiperContainers.forEach((container, index) => {
+      const wrapper = container.querySelector('.swiper-wrapper');
+      const folder = container.getAttribute('data-folder'); // 抓子資料夾名稱
+      const count = parseInt(container.getAttribute('data-count')); // 抓張數
+      
+      // 動態生成 HTML
+      let imagesHTML = '';
+      for (let i = 1; i <= count; i++) {
+        imagesHTML += `
+          <div class="swiper-slide">
+            <img src="img/${folder}/${i}.jpg" alt="Photo ${i}">
+          </div>`;
+      }
+      wrapper.innerHTML = imagesHTML;
+
+      // 初始化 Swiper
+      new Swiper(container, {
+        loop: true,
+        autoplay: {
+          delay: 3000 + (index * 700), // 錯開每個輪播的切換時間
+          disableOnInteraction: false,
+        },
+        navigation: {
+          nextEl: container.querySelector('.swiper-button-next'),
+          prevEl: container.querySelector('.swiper-button-prev'),
+        },
+      });
+    });
+  });
+
+
+async function sendForm() {
+        const form = document.getElementById('contactForm');
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/contact', {
+                method: 'POST',
+                body: formData 
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('送出成功！資料已存入資料庫。');
+                form.reset(); 
+            } else {
+                alert('送出失敗：' + result.message);
+            }
+        } catch (error) {
+            console.error('發生錯誤:', error);
+            alert('無法連線到伺服器，請確保 Node.js 已啟動。');
+        }
+    }
+
+</script>
+
+<body>
+
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+  <img src="img/logo.png" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">白ming</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+        data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" 
+        aria-label="切換導航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#top">頂端</a></li>
+          <li class="nav-item"><a class="nav-link" href="#record">紀錄</a></li>
+          <li class="nav-item"><a class="nav-link" href="#videos">影片</a></li>
+          <li class="nav-item"><a class="nav-link" href="#photos">照片</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">聯絡</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+<!-- Hero 區 -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay">
+  <div class="hero-content">
+    <h1>歡迎進入白ming的世界</h1>
+      <p><span id="typed-text"></span></p>
+    </div>
+  </div>
+</section>
+
+
+  <!-- 頂端介紹me-->
+  <section id="top" class="section bg-white">
+    <div class="container">
+      <h2 class="mb-4">個人資訊</h2>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="auto">
+
+  <blockquote class="instagram-media" 
+    data-instgrm-permalink="https://www.instagram.com/p/DP0h-QwE9Q2/?utm_source=ig_embed&amp;utm_campaign=loading" 
+    data-instgrm-version="14" 
+    style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);">
+
+    <div style="padding:16px;"> <a href="https://www.instagram.com/p/DP0h-QwE9Q2/?utm_source=ig_embed&amp;utm_campaign=loading" 
+        style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> 
+      <div style=" display: flex; flex-direction: row; align-items: center;"> 
+        <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> 
+        <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;">
+          <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> 
+          <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div>
+        </div>
+      </div>
+
+      <!-- 中間空白：預留給圖片或影片的位置 -->
+      <div style="padding: 19% 0;"></div> 
+
+      <!-- Instagram 圖示（SVG） -->
+      <div style="display:block; height:50px; margin:0 auto 12px; width:50px;">
+        <svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
+          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g transform="translate(-511.000000, -20.000000)" fill="#000000">
+              <g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631">
+              </path></g>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      </a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;">
+        <a href="https://www.instagram.com/p/DP0h-QwE9Q2/?utm_source=ig_embed&amp;utm_campaign=loading" 
+        style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" 
+        target="_blank">白ming（@mi_haoyun）分享的貼文</a></p>
+    </div>
+
+  </blockquote>
+
+  <script async src="//www.instagram.com/embed.js"></script>
+
+  </html>
+            
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h3>白ming</h3>
+<p>嗨!我是 ming~</p>
+<p>出生於2004年的秋天，是一位追求平衡與美感的天秤座。我的性格安靜且沉穩，比起喧鬧的場合，我更喜歡用細膩的角度觀察世界。</p>
+
+<p>「勇敢向前，不要膽怯，儘管害怕，不要停下。」 是我最喜歡的人生信條。
+我熱愛將生活中的碎片轉化為永恆的紀錄。從繪畫到攝影，我享受捕捉視覺美感的過程；而在旅遊與遊戲的日常中，我喜愛親自拍攝到幕後剪輯，用影音敘述屬於我的故事。</p>
+
+<p>目前，我正專注於多方面的自我成長：</p>
+
+<p>美學精進：深入研習化妝技巧與模特外拍，探索視覺表達的多樣性。
+動靜平衡：透過健身與羽毛球維持自律與體態，也在追劇與遊戲中尋找放鬆的靈感。</p>
+
+<p>我喜歡品嚐各地的美食，也深深著迷於感性的旋律，我最常聽單依純的《愛情沙拉拉拉》最愛的戲劇是《圈套》
+。對我而言，生活就是一場不斷前行的冒險，我將持續記錄這段充滿色彩的旅程。</p>
+
+            </div>
+          </div>
+<div class="side-by-side-images">
+    <div class="img-wrapper">
+      <img class="scroll-sync-up" src="img/leftcat.jpg" alt="Reveal Up">
+    </div>
+
+<div class="img-wrapper">
+      <img class="scroll-sync-right" src="img/rightcat.jpg" alt="Reveal Left">
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+<!-- 頂端介紹kira -->
+<section id="top2" class="section bg-white">
+  <div class="container">
+    <h2 class="mb-4">貓貓資訊</h2>
+    <div class="row"> 
+      <div class="col-md-6 mb-3">
+        <div class="card mb-0"> <div class="card-body">
+            <h3>kira✨</h3>
+            <p>「既然相遇了，就讓我們一起閃閃發光吧。」</p>
+            <p>2025 年 1 月 11 日出生的摩羯座女孩。取名為 Kira，是希望她的生命能像名字的含意一樣，永遠閃耀著光芒。</p>
+            <p>🐾 關於她的性格：貪吃又膽小的矛盾萌</p>
+            <p>Kira 是一個好奇心極強卻又有點小膽的孩子。當家裡有陌生人造訪時，她會立刻施展「消失術」躲得不見蹤影。
+              想要收買她的心？唯一的捷徑就是「吃的」。只要用美食賄賂並耐心地與她培養感情，她才會放下戒心；否則，想摸到她可是會讓她拔腿就跑的！</p>
+            <p>🐾 熟成後的甜蜜：翻肚肚警告</p>
+            <p>一旦被 Kira 認定為「自己人」，她就會展現出極度反差的熱情。
+              她會主動貼貼妳、在妳面前毫無防備地翻開肚子，這時候就是妳盡情嚕貓、吸貓的療癒時刻。
+              除此之外，她還是個不折不扣的「便當盯盤手」，只要聞到香味就會立刻湊過來，是個什麼都想嚐一口的可愛貪吃鬼。.</p>
+            <p>🐾 最感性的感悟：長大的速度快得驚人</p>
+            <p>回想起初次見面，她還是個只有巴掌大、能輕易捧在手心的小毛球；一轉眼，現在已經是需要兩隻手才能抱滿懷的憨厚大女孩了。
+              看著她那副從不咬人、溫順又呆萌的模樣，這份陪伴就是生活裡最珍貴的禮物。</p>
+          </div>
+        </div>
+
+        <div class="kira-parallax-box" style="overflow: hidden; width: 100%; margin-top: -1px;">
+          <img id="kira-parallax-img" src="img/bottomcat.png" alt="Kira Image" 
+style="width: 200%; 
+              height: auto; 
+              display: block; 
+              margin-left: -10%; 
+              box-shadow: none; 
+              filter: drop-shadow(0 0 0 transparent); 
+              opacity: 0; 
+              transform: translateX(-100px) scale(0.8); 
+              will-change: transform, opacity;">        
+          </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <blockquote class="instagram-media" 
+          data-instgrm-permalink="https://www.instagram.com/p/DPV7d5sE7X0/" 
+          data-instgrm-version="14" 
+          style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; width:calc(100% - 2px);">
+        </blockquote>
+      </div> 
+    </div> 
+  </div>
+</section>
+
+  <!-- 紀錄 -->
+<section id="record" class="section p-0" style="overflow: visible;"> 
+  <div class="container-fluid p-0">
+    <div class="row gx-0">
+      <div class="col-12">
+        <div id="parallax-stack-container" 
+             style="position: relative; width: 100%; height: 500px; overflow: visible; background: #d9eaf7; margin: 0;">
+          
+          <div style="position: absolute; width: 100%; height: 100%; overflow: hidden; top: 0; left: 0; z-index: 1;">
+            <img id="layer-bg" src="img/bg.jpg" alt="Background" 
+                 style="width: 100%; height: 100%; object-fit: cover; transform: scale(1.5); will-change: transform;">
+          </div>
+
+<div id="parallax-text" 
+               style="position: absolute; width: 100%; top: 50%; left: 43%; transform: translate(-50%, -50%) scale(0.5); 
+                      text-align: center; z-index: 5; opacity: 0; pointer-events: none;">
+            <h2 style="font-size: 4rem; color: white; font-weight: bold; text-shadow: 0 4px 15px rgba(0,0,0,0.5); margin: 0;">
+              紀錄每個小確幸
+            </h2>
+            <p style="font-size: 1.5rem; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+              生命中の每一刻都閃閃發光
+            </p>
+          </div>
+
+          <img id="layer-left" src="img/bgleft.png" alt="Left Cat" 
+               style="position: absolute; width: 40%; height: auto; bottom: -20px; left: 0; opacity: 0; transform: translateX(-150px) scale(0.6); z-index: 10; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3));">
+
+          <img id="layer-right" src="img/bgright.png" alt="Right Cat" 
+               style="position: absolute; width: 50%; height: auto; top: -80px; right: -20px; opacity: 0; transform: translateX(150px) scale(0.6); z-index: 11; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3));">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- 影片 -->
+  <section id="videos" class="section bg-white">
+    <div class="container">
+      <h2>影片分享</h2>
+      <div class="row">
+
+        <div class="col-md-4 text-center mb-4">
+          <iframe width="400" height="225" 
+          src="https://www.youtube.com/embed/PM-tnOzTXNA?si=9m4jnBUsUe0K1j8J&amp;start=7" 
+          title="YouTube video player" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          <h5>遊戲片段</h5>
+          <p>Gameplay clips</p>
+        </div>
+
+        <div class="col-md-4 text-center mb-4">
+          <iframe width="400" height="225" 
+            src="https://www.youtube.com/embed/Uon9jRWKMWk?si=Lq8mD1s2MasMfYaX&amp;start=2" 
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          </iframe>          
+          <h5>旅遊紀錄</h5>
+          <p>Travel vlogs</p>
+        </div>
+
+        <div class="col-md-4 text-center mb-4">
+          <iframe width="400" height="225" 
+          src="https://www.youtube.com/embed/SyWGlkMgQW4?si=9z9m8qNMNmrXhSME&amp;start=3" 
+          title="YouTube video player" frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          <h5>其它</h5>
+          <p>Other videos</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 照片 -->
+  <section id="photos" class="section">
+    <div class="container">
+      <h2>照片分享</h2>
+      <div class="row">
+
+<div class="row">
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 photo-swiper-card border-0 shadow-sm">
+      <div class="swiper myPhotoSwiper" data-folder="cat" data-count="14">
+        <div class="swiper-wrapper"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+      <div class="card-body text-center">
+        <h5 class="fw-bold">Kira & Muji</h5>
+        <p class="text-muted mb-0">臭屁貓貓們</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 photo-swiper-card border-0 shadow-sm">
+      <div class="swiper myPhotoSwiper" data-folder="ming" data-count="5">
+        <div class="swiper-wrapper"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+      <div class="card-body text-center">
+        <h5 class="fw-bold">白ming</h5>
+        <p class="text-muted mb-0">模特 / 日常</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 photo-swiper-card border-0 shadow-sm">
+      <div class="swiper myPhotoSwiper" data-folder="creation" data-count="5">
+        <div class="swiper-wrapper"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+      <div class="card-body text-center">
+        <h5 class="fw-bold">作品</h5>
+        <p class="text-muted mb-0">繪畫 / 拍攝 / 剪輯</p>
+      </div>
+    </div>
+  </div>
+</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 聯絡 -->
+<section id="contact" class="section bg-white" style="padding: 60px 0;">
+  <div class="container">
+    <h2 class="text-center mb-5">聯絡我!</h2>
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <form id="contactForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label">姓名</label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">訊息</label>
+            <textarea name="message" class="form-control" rows="4" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">上傳檔案 (選填)</label>
+            <input type="file" name="myFile1" class="form-control">
+          </div>
+
+          <div class="text-center">
+            <button type="button" onclick="sendForm()" class="btn btn-primary">送出</button>
+            <div id="responseMsg" style="margin-top: 10px; display: none;" class="alert"></div>          
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- 頁尾 -->
+  <footer class="footer">
+    <div class="container text-center">
+      <p>Mail : mingpeng75@gmail.com / Phone number : 0973753186</p>
+      <p>© Created in 2025 by ming1020</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="bootstrap.bundle.min.js"></script>
+</body>
+</html>

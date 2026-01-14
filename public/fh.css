@@ -1,0 +1,256 @@
+body {
+  background-color: #cee4f3;
+}
+
+/* 導航列 */
+/* 針對 Bootstrap 的導覽列設定基礎狀態 */
+.navbar-nav .nav-link {
+    display: inline-block;    /* 進行縮放 */
+    position: relative;       
+    padding: 10px 15px;       /* 增加點擊範圍 */
+    transition: transform 0.3s ease, color 0.3s ease; /* 平滑過渡效果 */
+}
+
+.navbar-brand img {
+    vertical-align: middle;
+    margin-right: 5px; /* 圖片與文字的距離 */
+}
+
+/* 當滑鼠觸碰時的放大效果 */
+.navbar-nav .nav-link:hover {
+    transform: scale(1.3);    /* 放大 */
+    color: #4dd0e1 !important; /* 改變觸碰時的顏色 */
+}
+
+/* 在縮放時字體不要模糊 */
+.navbar-nav .nav-link {
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* Hero 區 */
+.hero {
+  position: relative;
+  height: 60vh;
+  overflow: hidden;
+  color: #a0eaf0;
+}
+
+.hero-content {
+  transition: transform 0.1s linear, opacity 0.1s linear;
+  will-change: transform, opacity;
+}
+
+/* 視差背景 */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("img/hero.jpg");
+  background-size: cover;
+  background-position: center;
+  transform: translateY(0);
+  will-change: transform;
+}
+
+/* 遮罩＋文字 */
+.hero-overlay {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-overlay h1 {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+
+/* 每區的 padding */
+.section {
+  padding: 4rem 0;
+}
+
+
+.side-by-side-images {
+    display: flex;
+    justify-content: flex-end; /* 整體對齊右邊緣 */
+    align-items: flex-end;     /* 底部對齊 */
+    gap: 20px;                 /* 兩張大圖之間的間距 */
+    width: 100%;
+    margin-top: 20px;
+}
+
+.img-wrapper {
+    flex: 1;                   /* 讓兩張圖片平分空間 */
+    max-width: 400px;          /* 強制放大圖片的最大寬度限制 */
+}
+
+.img-wrapper img {
+    width: 100%;               /* 寬度填滿 wrapper */
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2); /* 加強陰影讓大圖更有層次 */
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+/* 初始狀態設定 */
+.scroll-sync-up {
+    transform: translateY(120px); /* 左圖：從下方更深處開始 */
+}
+
+.scroll-sync-right {
+    transform: translateX(120px); /* 右圖：從更右側開始 */
+}
+
+
+/* 視差圖片容器：移除間距讓它貼緊上方文字卡片 */
+.kira-parallax-box {
+    width: 100%;
+    margin-top: 5px; /* 微調與上方文字框的距離 */
+    overflow: hidden;
+    display: flex;
+    justify-content: flex-start;
+}
+
+#kira-parallax-img {
+    width: 100%;       /* 放大圖片，佔滿左側欄位 */
+    max-width: 500px;  /* 您可以根據需求調大這個數值 */
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    
+    /* 初始狀態：在左側且透明 */
+    opacity: 0;
+    transform: translateX(-150px);
+    will-change: transform, opacity;
+}
+
+/* 徹底移除陰影，並確保圖片可以超出容器邊界而不被切掉 */
+.kira-parallax-box {
+    width: 200%;
+    margin-top: -5px; 
+    overflow: visible !important; /* 確保圖片變大後不會被卡掉 */
+    position: relative;
+    z-index: 10; /* 讓圖片顯示在最上層，增加視覺上的大體積感 */
+  }
+
+#kira-parallax-img {
+    box-shadow: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+}
+
+/* 移除文字卡片與圖片之間的白色邊線 */
+.card {
+    border-bottom: none !important;
+}
+
+/* 修正 IG 貼文寬度，避免撐開佈局 */
+.instagram-media {
+    min-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* 照片輪播區 */
+  .myPhotoSwiper {
+    width: 100%;
+    height: 480px; 
+    background: #f0f0f0;
+    position: relative;
+  }
+
+  .swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 確保圖片不變形填滿 */
+    transition: transform 0.6s ease;
+  }
+
+  /* 鼠標移入：圖片放大 */
+  .photo-swiper-card:hover .swiper-slide img {
+    transform: scale(1.1);
+  }
+
+  /* 輪播按鈕：平時隱藏 */
+  .swiper-button-next, .swiper-button-prev {
+    color: white !important;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* 鼠標移入卡片：顯示按鈕 */
+  .photo-swiper-card:hover .swiper-button-next,
+  .photo-swiper-card:hover .swiper-button-prev {
+    opacity: 1;
+  }
+
+/* 角色圖片 */
+.char-img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+/* 頁尾 */
+.footer {
+  background: #2d2d2d;
+  color: #aaa;
+  padding: 1.5rem 0;
+}
+
+/* 設定打字機文字的顏色，確保在背景上清晰可見 */
+#typed-text {
+    color: #4dd0e1; 
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+
+.typed-cursor {
+    color: white;
+    font-size: 1.2rem;
+    opacity: 1;
+    animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* 確保圖片縮放時不會出現滾動條且移除所有預設陰影 */
+#parallax-stack-container {
+    overflow: hidden !important;
+}
+
+#layer-bg {
+    box-shadow: none !important;
+    border: none !important;
+}
+
+#layer-left, #layer-right {
+    will-change: transform, opacity;
+}
+
+/* 針對影片容器設定 hover 效果 */
+iframe {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+}
+
+iframe:hover {
+    transform: scale(1.05); /* 輕微放大 5% */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* 增加深邃陰影 */
+}
