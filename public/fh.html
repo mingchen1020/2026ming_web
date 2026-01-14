@@ -25,7 +25,7 @@
 </head>
 
 <script>
-  // 1. 頁面載入初始化 (打字機 + 輪播圖)
+  // (打字機 + 輪播圖)
   window.addEventListener('load', function () {
       // 打字機效果
       const typedEl = document.getElementById('typed-text');
@@ -100,7 +100,7 @@
       updateParallax(imgRight, 'right');
       updateParallax(kiraImg, 'left-to-right');
   
-      // --- 紀錄區 (Stack Container) ---
+      // --- 紀錄區 ---
       const container = document.getElementById('parallax-stack-container');
       if (container) {
           const cRect = container.getBoundingClientRect();
