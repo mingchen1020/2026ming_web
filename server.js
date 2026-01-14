@@ -1,101 +1,65 @@
 var express = require("express");
-var server = express();
-var bodyParser = require("body-parser");
-
-
-server.set("view engine", 'ejs');
-server.set("views", __dirname+"/view")
-
+var cors = require("cors"); // 加入 cors
+var path = require("path");
 var fileUpload = require("express-fileupload");
+var bodyParser = require("body-parser");
+var DB = require("nedb-promises");
 
+var server = express();
+
+// 1. 基礎設定
+server.use(cors()); // 允許跨來源請求，這樣 5500 埠才能傳資料給 3000 埠
 server.use(express.static(__dirname + "/public"));
-server.use(bodyParser.urlencoded());
+server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
-server.use(fileUpload({limits:{fileSize:2*1024*1024}}))
+server.use(fileUpload({
+    limits: { fileSize: 2 * 1024 * 1024 }, // 限制 2MB
+    createParentPath: true // 自動建立不存在的資料夾（如 upload）
+}));
 
-var DB=require("nedb-promises");
-var ServiceDB = DB.create(__dirname+"/Service.db");
-var PorfolioDB = DB.create(__dirname+"/Porfolio.db");
-var ContactDB = DB.create(__dirname+"/Contact.db");
-// ServiceDB.insert([
-//         { icon: 'fa-shopping-cart', title: 'E-Commerce', text: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur porro laborum fuga repellat necessitatibus corporis nulla, in ex velit recusandae obcaecati maiores, doloremque quisquam similique, tempora aspernatur eligendi delectus! Rem.' },
-//         { icon: 'fa-laptop', title: 'Responsive Design', text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.' },
-//         { icon: 'fa-lock', title: 'Web Security', text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.' }
-//     ])
-//  PorfolioDB.insert( [
-//         { href: "#portfolioModal1", imgSrc: "img/portfolio/roundicons.png", title: "Round Icons", text: "Graphic Design" },
-//         { href: "#portfolioModal2", imgSrc: "img/portfolio/startup-framework.png", title: "Startup Framework", text: "Website Design" },
-//         { href: "#portfolioModal3", imgSrc: "img/portfolio/treehouse.png", title: "Treehouse", text: "Website Design" },
-//         { href: "#portfolioModal1", imgSrc: "img/portfolio/roundicons.png", title: "Round Icons", text: "Graphic Design" },
-//         { href: "#portfolioModal2", imgSrc: "img/portfolio/startup-framework.png", title: "Startup Framework", text: "Website Design" },
-//         { href: "#portfolioModal3", imgSrc: "img/portfolio/treehouse.png", title: "Treehouse", text: "Website Design" }
-//     ])
+// 2. 資料庫設定
+var ContactDB = DB.create(path.join(__dirname, "Contact.db"));
+var ServiceDB = DB.create(path.join(__dirname, "Service.db"));
+var PorfolioDB = DB.create(path.join(__dirname, "Porfolio.db"));
 
+// 3. 路由設定
 server.get("/", (req, res) => {
-    // 讓首頁直接讀取 Public 資料夾下的 fh.html 檔案
-    res.sendFile(__dirname + "/public/fh.html");
+    res.sendFile(path.join(__dirname, "public", "fh.html"));
 });
-server.get("/services", (req, res) => {
-    //db 
-    // var Services = [
-    //     { icon: 'fa-shopping-cart', title: 'E-Commerce', text: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur porro laborum fuga repellat necessitatibus corporis nulla, in ex velit recusandae obcaecati maiores, doloremque quisquam similique, tempora aspernatur eligendi delectus! Rem.' },
-    //     { icon: 'fa-laptop', title: 'Responsive Design', text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.' },
-    //     { icon: 'fa-lock', title: 'Web Security', text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.' }
-    // ]
-    ServiceDB.find({},{_id:0}).then(results=>{
-       
-        res.send(results);
-    }).catch(error=>{
 
-    })
-    
-})
-
-server.get("/portfolio", (req, res) => {
-    // var Portfolio = [
-    //     { href: "#portfolioModal1", imgSrc: "img/portfolio/roundicons.png", title: "Round Icons", text: "Graphic Design" },
-    //     { href: "#portfolioModal2", imgSrc: "img/portfolio/startup-framework.png", title: "Startup Framework", text: "Website Design" },
-    //     { href: "#portfolioModal3", imgSrc: "img/portfolio/treehouse.png", title: "Treehouse", text: "Website Design" },
-    //     { href: "#portfolioModal1", imgSrc: "img/portfolio/roundicons.png", title: "Round Icons", text: "Graphic Design" },
-    //     { href: "#portfolioModal2", imgSrc: "img/portfolio/startup-framework.png", title: "Startup Framework", text: "Website Design" },
-    //     { href: "#portfolioModal3", imgSrc: "img/portfolio/treehouse.png", title: "Treehouse", text: "Website Design" }
-    // ]
-    PorfolioDB.find({}).then(results=>{
-        res.send(results);
-    })
-    
-})
-
-
-server.get("/showServices",(req,res)=>{
-    ServiceDB.find({},{_id:0}).then(results=>{
-       
-        res.render("service",{Services:results});
-    }).catch(error=>{
-
-    })
-
-})
-
-server.get("/about", (req, res) => {
-    res.send("Welcome " + req.query.user + " to My first NodeJS server!");
-})
-
-
+// 聯絡表單處理
 server.post("/contact", (req, res) => {
+    // 先將表單文字資料存入 NeDB
     ContactDB.insert(req.body)
         .then(result => {
+            // 檢查是否有檔案上傳
             if (req.files && req.files.myFile1) {
                 var upFile = req.files.myFile1;
-                upFile.mv(__dirname + "/public/upload/" + upFile.name, (err) => {
-                    if (err) return res.json({ success: false, message: err });
-                    res.json({ success: true, message: "上傳成功" }); // 回傳 JSON
+                // 設定存檔路徑：public/upload/檔名
+                var savePath = path.join(__dirname, "public", "upload", upFile.name);
+
+                upFile.mv(savePath, (err) => {
+                    if (err) {
+                        console.error("檔案移動失敗:", err);
+                        return res.status(500).json({ success: false, message: "資料已存，但檔案上傳失敗" });
+                    }
+                    res.json({ success: true, message: "✅ 資料與檔案均上傳成功！" });
                 });
             } else {
-                res.json({ success: true }); // 回傳 JSON
+                res.json({ success: true, message: "✅ 資料已成功存入資料庫（無附件）" });
             }
         })
-        .catch(err => res.json({ success: false, message: err }));
+        .catch(err => {
+            console.error("資料庫錯誤:", err);
+            res.status(500).json({ success: false, message: "❌ 資料庫寫入失敗" });
+        });
 });
 
-server.listen(80)
+// 啟動伺服器
+server.listen(3000, () => {
+    console.log("------------------------------------------");
+    console.log("🚀 伺服器已啟動！");
+    console.log("🔗 本地網址: http://localhost:3000");
+    console.log("📂 檔案將存放在: public/upload/");
+    console.log("------------------------------------------");
+});
