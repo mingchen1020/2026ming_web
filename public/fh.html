@@ -25,167 +25,126 @@
 </head>
 
 <script>
-window.addEventListener('load', function () {
-  const el = document.getElementById('typed-text');
-  if (!el) {
-    console.error('找不到 #typed-text');
-    return;
-  }
-
-  new Typed(el, {
-    strings: [
-      "-分享日常、記錄生活-",
-      "-熱愛遊戲、精彩瞬間-",
-      "-歡迎來到我的個人網站-",
-      "-Ming與Kira的故事-"
-    ],
-    typeSpeed: 60,
-    backSpeed: 40,
-    backDelay: 2000,
-    loop: true,
-    showCursor: true,
-    cursorChar: '|'
-  });
-});
-
-window.addEventListener('scroll', function() {
-  const windowHeight = window.innerHeight;
-  const kiraImg = document.getElementById('kira-parallax-img');
-  const imgUp = document.querySelector('.scroll-sync-up');
-  const imgRight = document.querySelector('.scroll-sync-right');
-
-  function updateParallax(el, type) {
-     if (!el) return;
-     const rect = el.getBoundingClientRect();
-
-    // 觸發區間：進入畫面 95% 開始，到 45% 完全結束
-    const start = windowHeight * 0.95;
-    const end = windowHeight * 0.45;
-
-    let progress = (start - rect.top) / (start - end);
-    progress = Math.min(Math.max(progress, 0), 1);
-
-    el.style.opacity = progress;
- 
-    if (type === 'up') {
-      el.style.transform = `translateY(${(1 - progress) * 80}px)`;
-    } else if (type === 'right') {
-      el.style.transform = `translateX(${(1 - progress) * 80}px)`;
-    } else if (type === 'left-to-right') {
-      // 平移：從 -100px 到 0px
-       const moveX = (1 - progress) * -100;
-      // 縮放：從 0.9 放大到 1.15 (讓它完全顯現時比容器大，更有張力)
-      const scale = 0.9 + (progress * 0.25); 
-
-      el.style.transform = `translateX(${moveX}px) scale(${scale})`;
-    }
-  }
-
-  updateParallax(imgUp, 'up');
-  updateParallax(imgRight, 'right');
-  updateParallax(kiraImg, 'left-to-right');
-});
-
-window.addEventListener('scroll', function() {
-    const container = document.getElementById('parallax-stack-container');
-    if (!container) return;
-
-    const rect = container.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    
-    // 計算進度：滑到螢幕中間時為 1.0
-    let progress = (windowHeight - rect.top) / (windowHeight / 2 + rect.height / 2);
-    progress = Math.min(Math.max(progress, 0), 1);
-
-    // 1. 底圖縮放
-    const bgScale = 1.5 - (progress * 0.5);
-    document.getElementById('layer-bg').style.transform = `scale(${bgScale})`;
-
-    // 2. 文字漸顯放大 (從 scale 0.5 到 1.0)
-    const textEl = document.getElementById('parallax-text');
-    const textScale = 0.5 + (progress * 0.5);
-    textEl.style.opacity = progress;
-    // 注意：這裡要保留 translate(-50%, -50%) 才能維持正中間對齊
-    textEl.style.transform = `translate(-50%, -50%) scale(${textScale})`;
-
-    // 3. 左側貓貓
-    const leftImg = document.getElementById('layer-left');
-    const leftX = (1 - progress) * -250;
-    const leftScale = 0.6 + (progress * 0.4); 
-    leftImg.style.opacity = progress;
-    leftImg.style.transform = `translateX(${leftX}px) scale(${leftScale})`;
-
-    // 4. 右側貓貓
-    const rightImg = document.getElementById('layer-right');
-    const rightX = (1 - progress) * 250;
-    const rightScale = 0.6 + (progress * 0.4);
-    rightImg.style.opacity = progress;
-    rightImg.style.transform = `translateX(${rightX}px) scale(${rightScale})`;
-});
-
-
-
-  window.addEventListener('load', function() {
-    // 找出頁面上所有的輪播
-    const swiperContainers = document.querySelectorAll('.myPhotoSwiper');
-
-    swiperContainers.forEach((container, index) => {
-      const wrapper = container.querySelector('.swiper-wrapper');
-      const folder = container.getAttribute('data-folder'); // 抓子資料夾名稱
-      const count = parseInt(container.getAttribute('data-count')); // 抓張數
-      
-      // 動態生成 HTML
-      let imagesHTML = '';
-      for (let i = 1; i <= count; i++) {
-        imagesHTML += `
-          <div class="swiper-slide">
-            <img src="img/${folder}/${i}.jpg" alt="Photo ${i}">
-          </div>`;
+  // 1. 頁面載入初始化 (打字機 + 輪播圖)
+  window.addEventListener('load', function () {
+      // 打字機效果
+      const typedEl = document.getElementById('typed-text');
+      if (typedEl) {
+          new Typed(typedEl, {
+              strings: ["-分享日常、記錄生活-", "-熱愛遊戲、精彩瞬間-", "-歡迎來到我的個人網站-", "-Ming與Kira的故事-"],
+              typeSpeed: 60,
+              backSpeed: 40,
+              backDelay: 2000,
+              loop: true,
+              showCursor: true,
+              cursorChar: '|'
+          });
       }
-      wrapper.innerHTML = imagesHTML;
-
-      // 初始化 Swiper
-      new Swiper(container, {
-        loop: true,
-        autoplay: {
-          delay: 3000 + (index * 700), // 錯開每個輪播的切換時間
-          disableOnInteraction: false,
-        },
-        navigation: {
-          nextEl: container.querySelector('.swiper-button-next'),
-          prevEl: container.querySelector('.swiper-button-prev'),
-        },
+  
+      // 輪播圖生成
+      const swiperContainers = document.querySelectorAll('.myPhotoSwiper');
+      swiperContainers.forEach((container, index) => {
+          const wrapper = container.querySelector('.swiper-wrapper');
+          const folder = container.getAttribute('data-folder');
+          const count = parseInt(container.getAttribute('data-count'));
+          let imagesHTML = '';
+          for (let i = 1; i <= count; i++) {
+              imagesHTML += `<div class="swiper-slide"><img src="img/${folder}/${i}.jpg" alt="Photo ${i}"></div>`;
+          }
+          wrapper.innerHTML = imagesHTML;
+          new Swiper(container, {
+              loop: true,
+              autoplay: { delay: 3000 + (index * 700), disableOnInteraction: false },
+              navigation: { nextEl: container.querySelector('.swiper-button-next'), prevEl: container.querySelector('.swiper-button-prev') },
+          });
       });
-    });
   });
-
-
-async function sendForm() {
-        const form = document.getElementById('contactForm');
-        const formData = new FormData(form);
-
-        try {
-            const response = await fetch('/contact', {
-                method: 'POST',
-                body: formData 
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                alert('送出成功！資料已存入資料庫。');
-                form.reset(); 
-            } else {
-                alert('送出失敗：' + result.message);
-            }
-        } catch (error) {
-            console.error('發生錯誤:', error);
-            alert('無法連線到伺服器，請確保 Node.js 已啟動。');
-        }
-    }
-
-</script>
-
+  
+  // 2. 核心滾動視差邏輯 (Hero + 貓貓圖片 + 紀錄區)
+  window.addEventListener('scroll', function() {
+      const scrolled = window.pageYOffset;
+      const windowHeight = window.innerHeight;
+  
+      // --- Hero 區同步視差 ---
+      const heroBg = document.querySelector('.hero-bg');
+      const heroWrapper = document.querySelector('.hero-text-wrapper');
+  
+      if (heroBg) {
+          heroBg.style.transform = `translateY(${scrolled * 0.4}px)`;
+      }
+  
+      if (heroWrapper) {
+          const fadeOutThreshold = windowHeight * 0.5; // 捲動到一半時消失
+          const safeOpacity = Math.max(1 - (scrolled / fadeOutThreshold), 0);
+          heroWrapper.style.transform = `translateY(${scrolled * 0.7}px)`;
+          heroWrapper.style.opacity = safeOpacity;
+      }
+  
+      // --- 貓貓圖片 updateParallax ---
+      const kiraImg = document.getElementById('kira-parallax-img');
+      const imgUp = document.querySelector('.scroll-sync-up');
+      const imgRight = document.querySelector('.scroll-sync-right');
+  
+      function updateParallax(el, type) {
+          if (!el) return;
+          const rect = el.getBoundingClientRect();
+          const start = windowHeight * 0.95;
+          const end = windowHeight * 0.45;
+          let progress = Math.min(Math.max((start - rect.top) / (start - end), 0), 1);
+          el.style.opacity = progress;
+          if (type === 'up') el.style.transform = `translateY(${(1 - progress) * 80}px)`;
+          else if (type === 'right') el.style.transform = `translateX(${(1 - progress) * 80}px)`;
+          else if (type === 'left-to-right') el.style.transform = `translateX(${(1 - progress) * -100}px) scale(${0.9 + (progress * 0.25)})`;
+      }
+      updateParallax(imgUp, 'up');
+      updateParallax(imgRight, 'right');
+      updateParallax(kiraImg, 'left-to-right');
+  
+      // --- 紀錄區 (Stack Container) ---
+      const container = document.getElementById('parallax-stack-container');
+      if (container) {
+          const cRect = container.getBoundingClientRect();
+          let cProgress = Math.min(Math.max((windowHeight - cRect.top) / (windowHeight / 2 + cRect.height / 2), 0), 1);
+          const bg = document.getElementById('layer-bg');
+          if (bg) bg.style.transform = `scale(${1.5 - (cProgress * 0.5)})`;
+          const textEl = document.getElementById('parallax-text');
+          if (textEl) {
+              textEl.style.opacity = cProgress;
+              textEl.style.transform = `translate(-50%, -50%) scale(${0.5 + (cProgress * 0.5)})`;
+          }
+          const leftImg = document.getElementById('layer-left');
+          const rightImg = document.getElementById('layer-right');
+          if (leftImg) {
+              leftImg.style.opacity = cProgress;
+              leftImg.style.transform = `translateX(${(1 - cProgress) * -250}px) scale(${0.6 + (cProgress * 0.4)})`;
+          }
+          if (rightImg) {
+              rightImg.style.opacity = cProgress;
+              rightImg.style.transform = `translateX(${(1 - cProgress) * 250}px) scale(${0.6 + (cProgress * 0.4)})`;
+          }
+      }
+  });
+  
+  // 3. 表單處理
+  async function sendForm() {
+      const form = document.getElementById('contactForm');
+      const responseMsg = document.getElementById('responseMsg');
+      if (!form || !responseMsg) return;
+      const formData = new FormData(form);
+      try {
+          const response = await fetch('/contact', { method: 'POST', body: formData });
+          const result = await response.json();
+          responseMsg.style.display = 'block';
+          responseMsg.className = result.success ? 'alert alert-success' : 'alert alert-danger';
+          responseMsg.innerText = result.success ? '✅ 送出成功！' : '❌ 失敗：' + result.message;
+          if (result.success) form.reset();
+      } catch (error) {
+          responseMsg.style.display = 'block';
+          responseMsg.className = 'alert alert-danger';
+          responseMsg.innerText = '❌ 無法連線伺服器';
+      }
+  }
+  </script>
 <body>
 
   <!-- 導覽列 -->
@@ -212,16 +171,14 @@ async function sendForm() {
 
   <section class="hero">
     <div class="hero-bg"></div>
-  
     <div class="hero-overlay">
-      <!-- 視差內容 -->
-      <div class="hero-content">
-        <h1>歡迎進入白ming的世界</h1>
-      </div>
-  
-      <!-- 固定顯示的打字文字 -->
-      <div class="hero-typed">
-        <span id="typed-text"></span>
+      <div id="hero-text-group" class="hero-content-wrapper">
+        <div class="hero-content">
+          <h1>歡迎進入白ming的世界</h1>
+        </div>
+        <div class="hero-typed">
+          <span id="typed-text"></span>
+        </div>
       </div>
     </div>
   </section>
